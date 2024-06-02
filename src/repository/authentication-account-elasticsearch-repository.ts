@@ -176,7 +176,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
                 tokenDate: new Date()
             }
         };
-        await this.datastore.save(entity);
+        await this.datastore.update(entity);
     }
 
     /**
