@@ -159,7 +159,8 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async deleteUser(username: string): Promise<void> {
-        await this.datastore.delete(username);
+        const key : Key = this.datastore.key(['Company', 'Google']);
+        await this.datastore.delete(key);
     }
 
     async userExists(username: string): Promise<boolean> {
