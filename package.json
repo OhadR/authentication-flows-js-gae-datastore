@@ -1,0 +1,34 @@
+{
+  "name": "authentication-flows-js-gae-datastore",
+  "version": "0.0.0",
+  "description": "Google AppEngine Datastore implementation for authentication-flows-js",
+  "main": "dist/index.js",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc",
+    "test": "npx tsc --target ES6"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OhadR/authentication-flows-js-elasticsearch.git"
+  },
+  "keywords": [
+    "authentication-flows",
+    "google app engine",
+    "repository"
+  ],
+  "author": "Ohad Redlich",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OhadR/authentication-flows-js-gae-datastore/issues"
+  },
+  "homepage": "https://github.com/OhadR/authentication-flows-js-gae-datastore#readme",
+  "dependencies": {
+    "authentication-flows-js": "1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.13.0",
+    "rimraf": "^5.0.7",
+    "typescript": "^5.4.5"
+  }
+}
