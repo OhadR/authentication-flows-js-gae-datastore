@@ -149,7 +149,9 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
         debug(key);
         const entity = {
             key: key,
-            data: newUser
+            data: {
+                name: newUser.getUsername(),        //GAE demands "name" (string) or "id" (numeric)
+                ...newUser}
         };
         await this.datastore.save(entity);
     }
