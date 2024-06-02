@@ -1,7 +1,7 @@
 import { AuthenticationAccountRepository,
 	AuthenticationUser,
     AuthenticationUserImpl } from 'authentication-flows-js';
-import {Datastore} from '@google-cloud/datastore';
+import { Datastore, Entity, Key, Query } from '@google-cloud/datastore';
 const debug = require('debug')('authentication-account-appengine');
 
 const AUTH_ACCOUNT_INDEX: string = 'authentication-account';
@@ -20,16 +20,12 @@ const simple_query = {
     }
 };
 
-export class AuthenticationAccountGAERepository /*implements AuthenticationAccountRepository */{
+export class AuthenticationAccountGAERepository implements AuthenticationAccountRepository {
 
     // Creates a client
     private datastore = new Datastore();
 
     constructor() {}
-
-    protected getIndex(): string {
-        return AUTH_ACCOUNT_INDEX;
-    }
 
     async loadUserByUsername(username: string): Promise<AuthenticationUser> {
 
@@ -40,9 +36,9 @@ export class AuthenticationAccountGAERepository /*implements AuthenticationAccou
         //
         // A single record can be retrieved with {@link Datastore#key} and
         // {@link Datastore#get}.
-        const key = this.datastore.key(['Company', 'Google']);
-        const entity = await this.datastore.get(key);
-        debug(`current num attempts: ${entity}`);
+        const key : Key = this.datastore.key(['Company', 'Google']);
+        const entity : Entity = await this.datastore.get(key);
+        debug(`entity: ${entity}`);
 
         const userJson: any = {};
         const user: AuthenticationUser = new AuthenticationUserImpl(
@@ -60,17 +56,24 @@ export class AuthenticationAccountGAERepository /*implements AuthenticationAccou
         return user;
     }
 
-    // async setEnabled(username: string) {
-    //     await this.setEnabledFlag(username, true);
-    // }
-    //
-    // async setDisabled(username: string) {
-    //     await this.setEnabledFlag(username, false);
-    // }
+    async setEnabled(username: string) {
+        await this.setEnabledFlag(username, true);
+    }
 
-    // protected async setEnabledFlag(username: string, enabled: boolean) {
-    //     await this.datastore.save(username, { isActive: enabled });
-    // }
+    async setDisabled(username: string) {
+        await this.setEnabledFlag(username, false);
+    }
+
+    protected async setEnabledFlag(username: string, enabled: boolean) {
+        const key : Key = this.datastore.key(['Company', 'Google']);
+        const entity = {
+            key: key,
+            data: {
+                rating: '10'
+            }
+        };
+        await this.datastore.save(username);
+    }
 
     async isEnabled(username: string): Promise<boolean> {
         const storedUser: AuthenticationUser =  await this.loadUserByUsername(username);
@@ -80,24 +83,36 @@ export class AuthenticationAccountGAERepository /*implements AuthenticationAccou
     }
 
     //TODO: should be in abstract class
-    // async decrementAttemptsLeft(username: string) {
-    //     const storedUser: AuthenticationUser =  await this.loadUserByUsername(username);
-    //     let attempts = storedUser.getLoginAttemptsLeft();
-    //     debug(`current num attempts: ${attempts}`);
-    //     await this.setAttemptsLeft(username, --attempts);
-    // }
+    async decrementAttemptsLeft(username: string) {
+        const storedUser: AuthenticationUser =  await this.loadUserByUsername(username);
+        let attempts = storedUser.getLoginAttemptsLeft();
+        debug(`current num attempts: ${attempts}`);
+        await this.setAttemptsLeft(username, --attempts);
+    }
 
-    // async setAttemptsLeft(username: string, loginAttemptsLeft: number) {
-    //     await this.updateItem(username, { loginAttemptsLeft: loginAttemptsLeft });
-    // }
-    //
-    // async setPassword(username: string, newPassword: string) {
-    //     await this.updateItem(username, {
-    //         encodedPassword: newPassword,
-    //         token: null,
-    //         tokenDate: null
-    //     });
-    // }
+    async setAttemptsLeft(username: string, loginAttemptsLeft: number) {
+        const key : Key = this.datastore.key(['Company', 'Google']);
+        const entity = {
+            key: key,
+            data: {
+                loginAttemptsLeft: loginAttemptsLeft
+            }
+        };
+        await this.datastore.save(entity);
+    }
+
+    async setPassword(username: string, newPassword: string) {
+        const key : Key = this.datastore.key(['Company', 'Google']);
+        const entity = {
+            key: key,
+            data: {
+                encodedPassword: newPassword,
+                token: null,
+                tokenDate: null
+            }
+        };
+        await this.datastore.save(entity);
+    }
 
     //TODO: should be in abstract class, async/await
     async getEncodedPassword(username: string): Promise<string> {
@@ -116,52 +131,70 @@ export class AuthenticationAccountGAERepository /*implements AuthenticationAccou
         throw new Error("Method not implemented.");
     }
 
-    // async createUser(authenticationUser: AuthenticationUser): Promise<void> {
-    //     debug('createUser / elasticsearch implementation!');
-    //
-    //     const newUser: AuthenticationUser = new AuthenticationUserImpl(authenticationUser.getUsername(),
-    //         authenticationUser.getPassword(),
-    //         false,
-    //         authenticationUser.getLoginAttemptsLeft(),
-    //         new Date(),
-    //         authenticationUser.getFirstName(),
-    //         authenticationUser.getLastName(),
-    //         authenticationUser.getAuthorities(),
-    //         authenticationUser.getToken(),
-    //         authenticationUser.getTokenDate());
-    //
-    //     if( await this.userExists( newUser.getUsername() ) ) {
-    //         //ALREADY_EXIST:
-    //         throw new Error(`user ${newUser.getUsername()} already exists`);
-    //     }
-    //
-    //     await this.indexItem(newUser.getUsername(), newUser);
-    // }
+    async createUser(authenticationUser: AuthenticationUser): Promise<void> {
+        debug('createUser / elasticsearch implementation!');
 
-    // async deleteUser(username: string): Promise<void> {
-    //     await this.deleteItem(username);
-    // }
+        const newUser: AuthenticationUser = new AuthenticationUserImpl(authenticationUser.getUsername(),
+            authenticationUser.getPassword(),
+            false,
+            authenticationUser.getLoginAttemptsLeft(),
+            new Date(),
+            authenticationUser.getFirstName(),
+            authenticationUser.getLastName(),
+            authenticationUser.getAuthorities(),
+            authenticationUser.getToken(),
+            authenticationUser.getTokenDate());
 
-    // async userExists(username: string): Promise<boolean> {
-    //     debug('userExists?');
-    //     return await this.exists(username);
-    // }
-    //
-    // async addLink(username: string, link: string) {
-    //     await this.updateItem(username, {
-    //         token: link,
-    //         tokenDate: new Date()
-    //     });
-    // }
-    //
-    // /**
-    //  * remove link
-    //  * @param link
-    //  */
-    // async removeLink(username: string): Promise<boolean> {
-    //     await this.updateItem(username, { token: null });
-    //     return true;
-    // }
+        if( await this.userExists( newUser.getUsername() ) ) {
+            //ALREADY_EXIST:
+            throw new Error(`user ${newUser.getUsername()} already exists`);
+        }
+
+        const key : Key = this.datastore.key(['Company', newUser.getUsername()]);
+        const entity = {
+            key: key,
+            data: newUser
+        };
+        await this.datastore.save(entity);
+    }
+
+    async deleteUser(username: string): Promise<void> {
+        await this.datastore.delete(username);
+    }
+
+    async userExists(username: string): Promise<boolean> {
+        debug('userExists?');
+        return false;//TODO
+        // return await this.exists(username);
+    }
+
+    async addLink(username: string, link: string) {
+        const key : Key = this.datastore.key(['Company', 'Google']);
+        const entity = {
+            key: key,
+            data: {
+                token: link,
+                tokenDate: new Date()
+            }
+        };
+        await this.datastore.save(entity);
+    }
+
+    /**
+     * remove link
+     * @param link
+     */
+    async removeLink(username: string): Promise<boolean> {
+        const key : Key = this.datastore.key(['Company', 'Google']);
+        const entity = {
+            key: key,
+            data: {
+                token: null,
+            }
+        };
+        await this.datastore.save(entity);
+        return true;
+    }
 
     //this is for the automation only:
     async getLink(username: string): Promise<{ link: string; date: Date; }> {
@@ -172,12 +205,14 @@ export class AuthenticationAccountGAERepository /*implements AuthenticationAccou
         };
     }
 
-    // async getUsernameByLink(token: string): Promise<string> {
-    //     simple_query.query.term.token = token;
-    //     const items: any[] = await this.search(simple_query);
-    //     if(!items || items.length == 0)
-    //         throw new Error("Could not find any user with this link.");
-    //
-    //     return items[0].email;
-    // }
+    async getUsernameByLink(token: string): Promise<string> {
+        const query : Query = this.datastore.createQuery('Company');
+        query.filter('token', token);
+        const items : Entity[] = await this.datastore.runQuery(query);
+
+        if(!items || items.length == 0)
+            throw new Error("Could not find any user with this link.");
+
+        return items[0].email;
+    }
 }
