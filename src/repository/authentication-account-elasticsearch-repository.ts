@@ -4,8 +4,7 @@ import { AuthenticationAccountRepository,
 import { Datastore, Entity, Key, Query } from '@google-cloud/datastore';
 const debug = require('debug')('authentication-account-appengine');
 
-const AUTH_ACCOUNT_INDEX: string = 'authentication-account';
-
+const AUTH_FLOW_DATASTORE_KIND: string = 'authentication-flows-user';
 const USER_TYPE = "GaeUser";
 const USER_FORENAME = "forename";
 const USER_SURNAME = "surname";
@@ -13,12 +12,6 @@ const USER_NICKNAME = "nickname";
 const USER_EMAIL = "email";
 const USER_ENABLED = "enabled";
 const USER_AUTHORITIES = "authorities";
-
-const simple_query = {
-    query: {
-        term: { 'token': '' }
-    }
-};
 
 export class AuthenticationAccountGAERepository implements AuthenticationAccountRepository {
 
@@ -36,7 +29,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
         //
         // A single record can be retrieved with {@link Datastore#key} and
         // {@link Datastore#get}.
-        const key : Key = this.datastore.key(['authentication-flows-user']);
+        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
         const entity : Entity = await this.datastore.get(key);
         debug(`entity: ${entity}`);
 
@@ -65,7 +58,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     protected async setEnabledFlag(username: string, enabled: boolean) {
-        const key : Key = this.datastore.key(['authentication-flows-user']);
+        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
         const entity = {
             key: key,
             data: {
@@ -91,7 +84,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async setAttemptsLeft(username: string, loginAttemptsLeft: number) {
-        const key : Key = this.datastore.key(['authentication-flows-user']);
+        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
         const entity = {
             key: key,
             data: {
@@ -102,7 +95,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async setPassword(username: string, newPassword: string) {
-        const key : Key = this.datastore.key(['authentication-flows-user']);
+        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
         const entity = {
             key: key,
             data: {
@@ -152,20 +145,17 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
             throw new Error(`user ${newUser.getUsername()} already exists`);
         }
 
-        const key : Key = this.datastore.key(['authentication-flows-user']);
+        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND, newUser.getUsername()]);
         debug(key);
-        debug(`key: ${JSON.stringify(key)}`);
         const entity = {
             key: key,
-            data: {
-                name: 'name=' + newUser.getUsername(),        //GAE demands "name" (string) or "id" (numeric)
-                ...newUser}
+            data: newUser
         };
         await this.datastore.save(entity);
     }
 
     async deleteUser(username: string): Promise<void> {
-        const key : Key = this.datastore.key(['authentication-flows-user']);
+        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
         await this.datastore.delete(key);
     }
 
@@ -176,7 +166,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async addLink(username: string, link: string) {
-        const key : Key = this.datastore.key(['authentication-flows-user']);
+        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND, username]);
         const entity = {
             key: key,
             data: {
@@ -192,7 +182,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
      * @param link
      */
     async removeLink(username: string): Promise<boolean> {
-        const key : Key = this.datastore.key(['authentication-flows-user']);
+        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
         const entity = {
             key: key,
             data: {
@@ -213,7 +203,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async getUsernameByLink(token: string): Promise<string> {
-        const query : Query = this.datastore.createQuery('Company');
+        const query : Query = this.datastore.createQuery(AUTH_FLOW_DATASTORE_KIND);
         query.filter('token', token);
         const items : Entity[] = await this.datastore.runQuery(query);
 
