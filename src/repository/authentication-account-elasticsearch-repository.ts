@@ -65,7 +65,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     protected async setEnabledFlag(username: string, enabled: boolean) {
-        const key : Key = this.datastore.key(['Company', 'Google']);
+        const key : Key = this.datastore.key(['authentication-flows-user']);
         const entity = {
             key: key,
             data: {
@@ -91,7 +91,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async setAttemptsLeft(username: string, loginAttemptsLeft: number) {
-        const key : Key = this.datastore.key(['Company', 'Google']);
+        const key : Key = this.datastore.key(['authentication-flows-user']);
         const entity = {
             key: key,
             data: {
@@ -102,7 +102,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async setPassword(username: string, newPassword: string) {
-        const key : Key = this.datastore.key(['Company', 'Google']);
+        const key : Key = this.datastore.key(['authentication-flows-user']);
         const entity = {
             key: key,
             data: {
@@ -158,7 +158,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
         const entity = {
             key: key,
             data: {
-                name: newUser.getUsername(),        //GAE demands "name" (string) or "id" (numeric)
+                name: 'name=' + newUser.getUsername(),        //GAE demands "name" (string) or "id" (numeric)
                 ...newUser}
         };
         await this.datastore.save(entity);
@@ -176,7 +176,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async addLink(username: string, link: string) {
-        const key : Key = this.datastore.key(['Company', 'Google']);
+        const key : Key = this.datastore.key(['authentication-flows-user']);
         const entity = {
             key: key,
             data: {
@@ -192,7 +192,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
      * @param link
      */
     async removeLink(username: string): Promise<boolean> {
-        const key : Key = this.datastore.key(['Company', 'Google']);
+        const key : Key = this.datastore.key(['authentication-flows-user']);
         const entity = {
             key: key,
             data: {

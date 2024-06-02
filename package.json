@@ -1,6 +1,6 @@
 {
   "name": "authentication-flows-js-gae-datastore",
-  "version": "0.0.1-snapshot-06",
+  "version": "0.0.1-snapshot-07",
   "description": "Google AppEngine Datastore implementation for authentication-flows-js",
   "main": "dist/index.js",
   "scripts": {
