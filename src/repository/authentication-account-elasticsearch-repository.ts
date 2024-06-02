@@ -132,7 +132,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async createUser(authenticationUser: AuthenticationUser): Promise<void> {
-        debug('createUser / elasticsearch implementation!');
+        debug('createUser / GAE implementation!');
 
         const newUser: AuthenticationUser = new AuthenticationUserImpl(authenticationUser.getUsername(),
             authenticationUser.getPassword(),
@@ -145,12 +145,16 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
             authenticationUser.getToken(),
             authenticationUser.getTokenDate());
 
+        debug(`newUSer: ${JSON.stringify(newUser)}`);
+
         if( await this.userExists( newUser.getUsername() ) ) {
             //ALREADY_EXIST:
             throw new Error(`user ${newUser.getUsername()} already exists`);
         }
 
         const key : Key = this.datastore.key(['Company', newUser.getUsername()]);
+        debug(key);
+        debug(`key: ${JSON.stringify(key)}`);
         const entity = {
             key: key,
             data: newUser
