@@ -36,7 +36,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
         //
         // A single record can be retrieved with {@link Datastore#key} and
         // {@link Datastore#get}.
-        const key : Key = this.datastore.key(['Company', 'Google']);
+        const key : Key = this.datastore.key(['authentication-flows-user']);
         const entity : Entity = await this.datastore.get(key);
         debug(`entity: ${entity}`);
 
@@ -152,18 +152,20 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
             throw new Error(`user ${newUser.getUsername()} already exists`);
         }
 
-        const key : Key = this.datastore.key(['Company', newUser.getUsername()]);
+        const key : Key = this.datastore.key(['authentication-flows-user']);
         debug(key);
         debug(`key: ${JSON.stringify(key)}`);
         const entity = {
             key: key,
-            data: newUser
+            data: {
+                name: newUser.getUsername(),        //GAE demands "name" (string) or "id" (numeric)
+                ...newUser}
         };
         await this.datastore.save(entity);
     }
 
     async deleteUser(username: string): Promise<void> {
-        const key : Key = this.datastore.key(['Company', 'Google']);
+        const key : Key = this.datastore.key(['authentication-flows-user']);
         await this.datastore.delete(key);
     }
 
