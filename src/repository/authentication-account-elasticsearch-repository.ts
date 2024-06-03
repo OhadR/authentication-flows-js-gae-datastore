@@ -29,7 +29,14 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     // {@link Datastore#get}.
     async getEntityByUsername(username: string) : Promise<Entity> {
         const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND, username]);
-        const entity : Entity = await this.datastore.get(key);
+        debug(key);
+        let entity : Entity;
+        try {
+            entity = await this.datastore.get(key);
+        } catch (e) {
+            debug(`ERROR (getEntityByUsername): ${e}`, e);
+        }
+
         debug(entity);
         return entity;
     }
