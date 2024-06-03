@@ -2,6 +2,7 @@ import { AuthenticationAccountRepository,
 	AuthenticationUser,
     AuthenticationUserImpl } from 'authentication-flows-js';
 import { Datastore, Entity, Key, Query } from '@google-cloud/datastore';
+import { RunQueryInfo } from "@google-cloud/datastore/build/src/query";
 const debug = require('debug')('authentication-account-appengine');
 
 const AUTH_FLOW_DATASTORE_KIND: string = 'authentication-flows-user';
@@ -220,15 +221,17 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async getUsernameByLink(token: string): Promise<string> {
-        debug('getUsernameByLink');//TODO REMOVE
         const query : Query = this.datastore.createQuery(AUTH_FLOW_DATASTORE_KIND);
         query.filter('token', token);
-        const items : Entity[] = await this.datastore.runQuery(query);
-        debug('getUsernameByLink: items:');//TODO REMOVE
+        const runQueryResponse : [Entity[], RunQueryInfo] = await this.datastore.runQuery(query);
+        const items : Entity[] = runQueryResponse[0];
         debug(items);//TODO REMOVE
 
         if(!items || items.length == 0)
             throw new Error("Could not find any user with this link.");
+
+        if(items.length > 1)
+            throw new Error("found more the a single record with the same link");
 
         return items[0].email;
     }
