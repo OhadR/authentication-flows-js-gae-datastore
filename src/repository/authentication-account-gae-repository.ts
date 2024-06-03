@@ -49,18 +49,17 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
 
         const entity : Entity = await this.getEntityByUsername(username);
 
-        const userJson: any = {};
         const user: AuthenticationUser = new AuthenticationUserImpl(
-            userJson.email,
-            userJson.encodedPassword,
-            userJson.isActive,
-            userJson.loginAttemptsLeft,
-            userJson.passwordLastChangeDate,
-            userJson.firstName,
-            userJson.lastName,
-            userJson.authorities,
-            userJson.token,
-            userJson.tokenDate
+            entity.email,
+            entity.encodedPassword,
+            entity.isActive,
+            entity.loginAttemptsLeft,
+            entity.passwordLastChangeDate,
+            entity.firstName,
+            entity.lastName,
+            entity.authorities,
+            entity.token,
+            entity.tokenDate
         );
         return user;
     }
@@ -211,7 +210,6 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
         return true;
     }
 
-    //this is for the automation only:
     async getLink(username: string): Promise<{ link: string; date: Date; }> {
         const storedUser: AuthenticationUser =  await this.loadUserByUsername(username);
         return {
@@ -225,7 +223,6 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
         query.filter('token', token);
         const runQueryResponse : [Entity[], RunQueryInfo] = await this.datastore.runQuery(query);
         const items : Entity[] = runQueryResponse[0];
-        debug(items);//TODO REMOVE
 
         if(!items || items.length == 0)
             throw new Error("Could not find any user with this link.");
