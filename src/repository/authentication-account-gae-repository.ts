@@ -180,6 +180,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async addLink(username: string, link: string) {
+        debug('addLink');
         let entity : Entity = await this.getEntityByUsername(username);
 
         entity.data = {
@@ -187,7 +188,8 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
             token: link,
             tokenDate: new Date()
         }
-        await this.datastore.upsert(entity);
+        debug(entity);
+        await this.datastore.save(entity);
     }
 
     /**
