@@ -30,15 +30,18 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     async getEntityByUsername(username: string) : Promise<Entity> {
         const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND, username]);
         debug(key);
-        let entity : Entity;
+        let entities : Entity[];
         try {
-            entity = await this.datastore.get(key);
+            entities = await this.datastore.get(key);
         } catch (e) {
             debug(`ERROR (getEntityByUsername): ${e}`, e);
         }
 
-        debug(entity);
-        return entity;
+        if(entities.length > 1)
+            throw new Error(`found more than a single record with the name=${username}`);
+
+        debug(entities[0]);
+        return entities[0];
     }
 
     async loadUserByUsername(username: string): Promise<AuthenticationUser> {
@@ -183,8 +186,8 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
         debug('addLink');
         let entity : Entity = await this.getEntityByUsername(username);
 
-        entity.data = {
-            ...entity.data,
+        entity = {
+            ...entity,
             token: link,
             tokenDate: new Date()
         }
