@@ -30,7 +30,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     // {@link Datastore#get}.
     async getEntityByUsername(username: string) : Promise<Entity> {
         const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND, username]);
-        debug(key);
+        // debug(key);
         let entities : Entity[];
         try {
             entities = await this.datastore.get(key);
@@ -41,7 +41,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
         if(entities.length > 1)
             throw new Error(`found more than a single record with the name=${username}`);
 
-        debug(entities[0]);
+        // debug(entities[0]);
         return entities[0];
     }
 
@@ -150,7 +150,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
         debug(`newUSer: ${JSON.stringify(newUser)}`);
 
         const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND, newUser.getUsername()]);
-        debug(key);
+        // debug(key);
         const entity = {
             key: key,
             data: {
