@@ -183,7 +183,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async addLink(username: string, link: string) {
-        debug('addLink');
+        debug('addLink');//TODO REMOVE
         let entity : Entity = await this.getEntityByUsername(username);
 
         entity = {
@@ -191,7 +191,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
             token: link,
             tokenDate: new Date()
         }
-        debug(entity);
+        debug(entity);//TODO REMOVE
         await this.datastore.save(entity);
     }
 
@@ -221,7 +221,9 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async getUsernameByLink(token: string): Promise<string> {
+        debug('getUsernameByLink');//TODO REMOVE
         const query : Query = this.datastore.createQuery(AUTH_FLOW_DATASTORE_KIND);
+        debug('getUsernameByLink: after createQuery()');//TODO REMOVE
         query.filter('token', token);
         const items : Entity[] = await this.datastore.runQuery(query);
 
