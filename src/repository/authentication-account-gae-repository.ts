@@ -73,14 +73,12 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     protected async setEnabledFlag(username: string, enabled: boolean) {
-        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
-        const entity = {
-            key: key,
-            data: {
-                rating: '10'
-            }
+        let entity : Entity = await this.getEntityByUsername(username);
+        entity = {
+            ...entity,
+            isActive: enabled
         };
-        await this.datastore.save(username);
+        await this.datastore.save(entity);
     }
 
     async isEnabled(username: string): Promise<boolean> {
@@ -99,12 +97,10 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async setAttemptsLeft(username: string, loginAttemptsLeft: number) {
-        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
-        const entity = {
-            key: key,
-            data: {
-                loginAttemptsLeft: loginAttemptsLeft
-            }
+        let entity : Entity = await this.getEntityByUsername(username);
+        entity = {
+            ...entity,
+            loginAttemptsLeft: loginAttemptsLeft
         };
         await this.datastore.save(entity);
     }
@@ -196,15 +192,13 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
 
     /**
      * remove link
-     * @param link
+     * @param username
      */
     async removeLink(username: string): Promise<boolean> {
-        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
-        const entity = {
-            key: key,
-            data: {
-                token: null,
-            }
+        let entity : Entity = await this.getEntityByUsername(username);
+        entity = {
+            ...entity,
+            token: null,
         };
         await this.datastore.save(entity);
         return true;
