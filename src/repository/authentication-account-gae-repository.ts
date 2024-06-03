@@ -151,11 +151,6 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
 
         debug(`newUSer: ${JSON.stringify(newUser)}`);
 
-        if( await this.userExists( newUser.getUsername() ) ) {
-            //ALREADY_EXIST:
-            throw new Error(`user ${newUser.getUsername()} already exists`);
-        }
-
         const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND, newUser.getUsername()]);
         debug(key);
         const entity = {
@@ -173,9 +168,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async userExists(username: string): Promise<boolean> {
-        debug('userExists?');
-        return false;//TODO
-        // return await this.exists(username);
+        throw new Error('not implemented');
     }
 
     async addLink(username: string, link: string) {
