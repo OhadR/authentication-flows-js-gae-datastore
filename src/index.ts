@@ -1,1 +1,1 @@
-export * from './repository/authentication-account-elasticsearch-repository'
+export * from './repository/authentication-account-gae-repository'

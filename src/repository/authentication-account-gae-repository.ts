@@ -169,7 +169,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async deleteUser(username: string): Promise<void> {
-        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
+        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND, username]);
         await this.datastore.delete(key);
     }
 
