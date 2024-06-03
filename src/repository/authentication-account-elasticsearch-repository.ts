@@ -20,18 +20,23 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
 
     constructor() {}
 
+    // Records, called "entities" in Datastore, are retrieved by using a key. The
+    // key is more than a numeric identifier, it is a complex data structure that
+    // can be used to model relationships. The simplest key has a string `kind`
+    // value, and either a numeric `id` value, or a string `name` value.
+    //
+    // A single record can be retrieved with {@link Datastore#key} and
+    // {@link Datastore#get}.
+    async getEntityByUsername(username: string) : Promise<Entity> {
+        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND, username]);
+        const entity : Entity = await this.datastore.get(key);
+        debug(entity);
+        return entity;
+    }
+
     async loadUserByUsername(username: string): Promise<AuthenticationUser> {
 
-        // Records, called "entities" in Datastore, are retrieved by using a key. The
-        // key is more than a numeric identifier, it is a complex data structure that
-        // can be used to model relationships. The simplest key has a string `kind`
-        // value, and either a numeric `id` value, or a string `name` value.
-        //
-        // A single record can be retrieved with {@link Datastore#key} and
-        // {@link Datastore#get}.
-        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
-        const entity : Entity = await this.datastore.get(key);
-        debug(`entity: ${entity}`);
+        const entity : Entity = await this.getEntityByUsername(username);
 
         const userJson: any = {};
         const user: AuthenticationUser = new AuthenticationUserImpl(
@@ -168,15 +173,14 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async addLink(username: string, link: string) {
-        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND, username]);
-        const entity = {
-            key: key,
-            data: {
-                token: link,
-                tokenDate: new Date()
-            }
-        };
-        await this.datastore.update(entity);
+        let entity : Entity = await this.getEntityByUsername(username);
+
+        entity.data = {
+            ...entity.data,
+            token: link,
+            tokenDate: new Date()
+        }
+        await this.datastore.upsert(entity);
     }
 
     /**
