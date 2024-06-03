@@ -191,7 +191,6 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
             token: link,
             tokenDate: new Date()
         }
-        debug(entity);//TODO REMOVE
         await this.datastore.save(entity);
     }
 
@@ -223,9 +222,10 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     async getUsernameByLink(token: string): Promise<string> {
         debug('getUsernameByLink');//TODO REMOVE
         const query : Query = this.datastore.createQuery(AUTH_FLOW_DATASTORE_KIND);
-        debug('getUsernameByLink: after createQuery()');//TODO REMOVE
         query.filter('token', token);
         const items : Entity[] = await this.datastore.runQuery(query);
+        debug('getUsernameByLink: items:');//TODO REMOVE
+        debug(items);//TODO REMOVE
 
         if(!items || items.length == 0)
             throw new Error("Could not find any user with this link.");
