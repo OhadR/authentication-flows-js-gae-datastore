@@ -113,7 +113,8 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
             token: null,
             tokenDate: null
         };
-        await this.datastore.save(entity);
+        const response = await this.datastore.save(entity);
+        debug(response);
     }
 
     //TODO: should be in abstract class, async/await
@@ -191,7 +192,8 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
             ...entity,
             token: null,
         };
-        await this.datastore.save(entity);
+        const response = await this.datastore.save(entity);
+        debug(response);
         return true;
     }
 
