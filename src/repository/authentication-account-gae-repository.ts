@@ -85,7 +85,7 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
         const storedUser: AuthenticationUser =  await this.loadUserByUsername(username);
         if (!storedUser)
             return false;
-        return await storedUser.isEnabled();
+        return storedUser.isEnabled();
     }
 
     //TODO: should be in abstract class
@@ -106,14 +106,12 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
     }
 
     async setPassword(username: string, newPassword: string) {
-        const key : Key = this.datastore.key([AUTH_FLOW_DATASTORE_KIND]);
-        const entity = {
-            key: key,
-            data: {
-                encodedPassword: newPassword,
-                token: null,
-                tokenDate: null
-            }
+        let entity : Entity = await this.getEntityByUsername(username);
+        entity = {
+            ...entity,
+            encodedPassword: newPassword,
+            token: null,
+            tokenDate: null
         };
         await this.datastore.save(entity);
     }
