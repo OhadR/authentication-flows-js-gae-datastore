@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/OhadR/authentication-flows-js-elasticsearch.git"
+    "url": "git+https://github.com/OhadR/authentication-flows-js-gae-datastore.git"
   },
   "keywords": [
     "authentication-flows",
