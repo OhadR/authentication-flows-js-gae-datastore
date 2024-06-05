@@ -11,3 +11,11 @@ This project is a **Google AppEngine Datastore implementation** for `Authenticat
 none!
 
 
+### deploy to Google AppEngine
+
+the app (note: the hosting app, not this package!) is deployed on Google's PaaS, AppEngine. A sample app is at:
+https://github.com/OhadR/authentication-flows-js-app/tree/gae-impl (note the `gae-impl` branch)
+
+to deploy to GAE:
+
+    gcloud app deploy
