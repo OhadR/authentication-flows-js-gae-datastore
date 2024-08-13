@@ -217,4 +217,22 @@ export class AuthenticationAccountGAERepository implements AuthenticationAccount
 
         return items[0].email;
     }
+
+    getAllUsers(): Promise<AuthenticationUser[]> {
+        return Promise.resolve([]);
+    }
+
+    setAuthorities(username: string, authorities: string[]): any {
+    }
+
+    async setLastLoginDate(username: string, lastLoginDate: Date): Promise<any> {
+        debug('setLastLoginDate');
+        let entity: Entity = await this.getEntityByUsername(username);
+
+        entity = {
+            ...entity,
+            lastLoginDate: new Date()
+        }
+        return this.datastore.save(entity);
+    }
 }

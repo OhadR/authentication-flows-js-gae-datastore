@@ -25,7 +25,7 @@
   "homepage": "https://github.com/OhadR/authentication-flows-js-gae-datastore#readme",
   "dependencies": {
     "@google-cloud/datastore": "^9.0.0",
-    "authentication-flows-js": "1.2.0"
+    "authentication-flows-js": "1.12.1"
   },
   "devDependencies": {
     "@types/node": "^20.13.0",
